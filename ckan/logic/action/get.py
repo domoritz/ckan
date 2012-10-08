@@ -1111,7 +1111,7 @@ def package_search(context, data_dict):
     results = []
     if not abort:
         # return a list of package ids
-        data_dict['fl'] = 'id data_dict'
+        data_dict['fl'] = 'id data_dict score'
 
 
         # If this query hasn't come from a controller that has set this flag
@@ -1128,7 +1128,7 @@ def package_search(context, data_dict):
 
         for package in query.results:
             # get the package object
-            package, package_dict = package['id'], package.get('data_dict')
+            package, package_dict, score = package['id'], package.get('data_dict'), package.get('score')
             pkg_query = session.query(model.PackageRevision)\
                 .filter(model.PackageRevision.id == package)\
                 .filter(_and_(
@@ -1146,6 +1146,7 @@ def package_search(context, data_dict):
             if package_dict:
                 ## the package_dict still needs translating when being viewed
                 package_dict = json.loads(package_dict)
+                package_dict['score'] = score
                 if context.get('for_view'):
                     for item in plugins.PluginImplementations( plugins.IPackageController):
                         package_dict = item.before_view(package_dict)
